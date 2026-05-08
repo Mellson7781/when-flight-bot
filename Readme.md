@@ -2,7 +2,7 @@
 
 Telegram-бот для поиска информации о рейсах и получения прогноза задержек.
 
-Бот работает через пошаговый ввод данных (FSM) и обращается к локальному API для получения информации о рейсах и прогнозах.
+Бот работает через пошаговый ввод данных (FSM) и взаимодействует с локальным API для получения информации о рейсах и прогнозов задержек.
 
 ---
 
@@ -12,81 +12,29 @@ Telegram-бот для поиска информации о рейсах и по
 
 Команда позволяет получить подробную информацию о рейсе.
 
-**Логика:**
-1. Ввод `/src`
-2. Ввод номера рейса
-3. Ввод локальной даты
-4. Получение информации о рейсе
+#### Логика работы
 
-**API:**
+1. Пользователь вводит `/src`
+2. Бот запрашивает номер рейса
+3. Бот запрашивает локальную дату рейса
+4. Бот отправляет информацию о рейсе
 
+#### API
+
+```http
 GET http://127.0.0.1:8080/api/flight/number/
+```
 
+#### Параметры запроса
 
----
+| Параметр | Тип | Описание |
+|----------|------|----------|
+| number | str | Номер рейса |
+| LocalDate | date | Локальная дата рейса |
 
-### 📈 `/prediction` — прогноз рейса
+#### Ответ API
 
-Команда возвращает прогноз задержек и статистику по рейсу.
-
-**Логика:**
-1. Ввод `/prediction`
-2. Ввод номера рейса
-3. Ввод локальной даты
-4. Получение прогноза
-
-**API:**
-
-GET http://127.0.0.1:8080/api/flight/forecast
-
-
----
-
-### 📚 `/help` — справка
-
-Показывает список доступных команд и описание их работы.
-
----
-
-## 🧠 Логика работы (FSM)
-
-Бот использует Finite State Machine:
-
-- `waiting_for_flight_number` — ожидание номера рейса
-- `waiting_for_flight_date` — ожидание даты рейса
-
-Каждый сценарий:
-
-команда → номер рейса → дата → ответ → очистка состояния
-
-
----
-
-## 🌐 API
-
-Бот работает с локальным backend:
-
-
-http://127.0.0.1:8080/api/flight/
-
-
----
-
-## ✈️ Flight search (/src)
-
-
-GET /number/
-
-
-### Параметры:
-
-| name      | type | description     |
-|----------|------|-----------------|
-| number   | str  | номер рейса      |
-| LocalDate| date | локальная дата   |
-
-### Ответ:
-
+```python
 class Flight:
     number: str
     status: str | None
@@ -108,61 +56,157 @@ class Flight:
 
     airline: str | None
     local_date: date | None
+```
 
-📈 Flight forecast (/prediction)
-GET /forecast
-Параметры:
-name	type	description
-number	str	номер рейса
-LocalDate	date	локальная дата
+---
 
-Ответ:
-class Forescast:
+### 📈 `/prediction` — прогноз задержки рейса
+
+Команда возвращает прогноз задержек и статистику по рейсу.
+
+#### Логика работы
+
+1. Пользователь вводит `/prediction`
+2. Бот запрашивает номер рейса
+3. Бот запрашивает локальную дату рейса
+4. Бот отправляет прогноз задержки
+
+#### API
+
+```http
+GET http://127.0.0.1:8080/api/flight/forecast
+```
+
+#### Параметры запроса
+
+| Параметр | Тип | Описание |
+|----------|------|----------|
+| number | str | Номер рейса |
+| LocalDate | date | Локальная дата рейса |
+
+#### Ответ API
+
+```python
+class Forecast:
     chance_of_delay: StatusType
-    departure_airoport: AiroportDelay
-    arrival_airoport: AiroportDelay
-🧩 Вложенные модели
+    departure_airport: AirportDelay
+    arrival_airport: AirportDelay
+```
 
-TimeInfo
+---
+
+### 📚 `/help` — справка
+
+Показывает список доступных команд и описание их работы.
+
+---
+
+## 🧩 Вложенные модели
+
+### TimeInfo
+
+```python
 class TimeInfo:
     utc: datetime
     local: datetime
+```
 
-DelayInformation
+### DelayInformation
+
+```python
 class DelayInformation:
     numTotal: int | None
     numQualifiedTotal: int | None
     numCancelled: int | None
     medianDelay: timedelta | None
     delayIndex: float
+```
 
-AiroportDelay
-class AiroportDelay:
+### AirportDelay
+
+```python
+class AirportDelay:
     airportIcao: str
+
     from_: TimeInfo
     to: TimeInfo
 
     departuresDelayInformation: DelayInformation
     arrivalsDelayInformation: DelayInformation
+```
 
+---
 
-###🛠 Технологии:
-Python 3.11+
-aiogram 3.x
-FSM (Finite State Machine)
-httpx (async)
-Pydantic v2
-📁 Структура
+## 🧠 FSM (Finite State Machine)
+
+Бот использует FSM для управления диалогами.
+
+### Состояния
+
+- `waiting_for_flight_number` — ожидание номера рейса
+- `waiting_for_flight_date` — ожидание даты рейса
+
+### Сценарий работы
+
+```text
+команда → номер рейса → дата → ответ → очистка состояния
+```
+
+---
+
+## 🌐 Backend API
+
+Бот работает с локальным backend API:
+
+```text
+http://127.0.0.1:8080/api/flight/
+```
+
+---
+
+## 🛠 Используемые технологии
+
+- Python 3.11+
+- aiogram 3.x
+- FSM (Finite State Machine)
+- httpx (async)
+- Pydantic v2
+
+---
+
+## 📁 Структура проекта
+
+```text
 handlers/
 services/
 models/
 config.py
 main.py
-▶️ Запуск
+```
+
+---
+
+## ▶️ Запуск проекта
+
+### Установка зависимостей
+
+```bash
 pip install -r requirements.txt
+```
+
+### Запуск бота
+
+```bash
 python main.py
-📌 Особенности
-Двухшаговые сценарии (номер → дата)
-Асинхронные HTTP запросы
-FSM управление диалогами
-Локальный API backend
+```
+
+---
+
+## 📌 Особенности
+
+- Пошаговые сценарии ввода данных
+- Асинхронные HTTP-запросы
+- FSM-управление диалогами
+- Работа с локальным backend API
+- Валидация данных через Pydantic
+- Полностью асинхронная архитектура
