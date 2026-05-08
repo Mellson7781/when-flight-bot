@@ -4,6 +4,7 @@ from datetime import date
 
 from bot.error.api import APIBadRequest, NotFoundFLight, LittelDate, ManyRequestAPI, APIOtherStatusHTTP
 from bot.schemas.flight import Flight, Forescast
+from bot.core.config import settings
 
 
 class InternalAPI:
@@ -11,7 +12,7 @@ class InternalAPI:
         self.client = client
 
     async def get_data_flight(self, number: str, localDate: date) -> Flight:
-        URL = "http://127.0.0.1:8080/api/filght/searech/number"
+        URL = f"{settings.URL}/api/flight/search/number"
         params = {
             "number": number,
             "LocalDate": localDate
@@ -37,7 +38,7 @@ class InternalAPI:
         return flight
     
     async def get_data_prediction(self, number: str, localDate: date) -> Forescast:
-        URL = "http://127.0.0.1:8080/api/filght/forecast"
+        URL = f"{settings.URL}/api/flight/forecast"
         params = {
             "number": number,
             "LocalDate": localDate
