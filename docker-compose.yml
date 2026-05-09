@@ -2,11 +2,14 @@ version: '3.8'
 
 
 services:
-  api:
+  bot:
     build:
       context: . 
       dockerfile: Dockerfile
     working_dir: /app
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
     env_file:
       - .env
     volumes:
