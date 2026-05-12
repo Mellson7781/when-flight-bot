@@ -1,0 +1,48 @@
+name: Build and Deploy
+
+permissions:
+  contents: read
+  packages: write
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build Docker image
+        run: docker build --pull -t ${{ vars.DOCKER_IMAGE }}:latest .
+
+      - name: Push Docker image
+        run: docker push ${{ vars.DOCKER_IMAGE }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.SSH_HOST }}
+          username: ${{ vars.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            if [ ! -d "when-flight-bot" ]; then
+              mkdir -p when-flight-bot
+            fi
+
+            cd when-flight-bot
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
