@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from bot.service.request_api import InternalAPI
 from bot.schemas.flight import  Flight
-from bot.error.api import ManyRequestAPI, APIBadRequest, APIOtherStatusHTTP, NotFoundFLight
+from bot.error.api import ManyRequestAPI, APIBadRequest, APIOtherStatusHTTP, NotFoundFLight, TheDataProviderHasRestrictedAccess
 
 
 class SearechService:
@@ -20,6 +20,8 @@ class SearechService:
             text = "⚠️Рейс не найден!"
         except APIOtherStatusHTTP:
             text = "😔Мы не располагаем информацией об этом рейсе!"
+        except TheDataProviderHasRestrictedAccess:
+            text = "🚫Поставщик данных ограничил доступ для нас.😔"
 
         return text
 

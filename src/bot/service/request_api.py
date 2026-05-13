@@ -2,7 +2,7 @@ import httpx
 
 from datetime import date
 
-from bot.error.api import APIBadRequest, NotFoundFLight, LittelDate, ManyRequestAPI, APIOtherStatusHTTP
+from bot.error.api import APIBadRequest, NotFoundFLight, LittelDate, ManyRequestAPI, APIOtherStatusHTTP, TheDataProviderHasRestrictedAccess
 from bot.schemas.flight import Flight, Forescast
 from bot.core.config import settings
 
@@ -29,6 +29,8 @@ class InternalAPI:
                 raise LittelDate()
             elif e.response.status_code == 429:
                 raise ManyRequestAPI()
+            elif e.response.status_code == 451:
+                raise TheDataProviderHasRestrictedAccess()
             else:
                 raise APIOtherStatusHTTP()
 
@@ -55,6 +57,8 @@ class InternalAPI:
                 raise LittelDate()
             elif e.response.status_code == 429:
                 raise ManyRequestAPI()
+            elif e.response.status_code == 451:
+                raise TheDataProviderHasRestrictedAccess()
             else:
                 raise APIOtherStatusHTTP()
 

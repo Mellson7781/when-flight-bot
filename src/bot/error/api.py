@@ -16,3 +16,7 @@ class ManyRequestAPI(Exception):
 
 class APIOtherStatusHTTP(Exception):
     pass
+
+
+class TheDataProviderHasRestrictedAccess(Exception):
+    pass

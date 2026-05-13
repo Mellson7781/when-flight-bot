@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from bot.service.request_api import InternalAPI
-from bot.error.api import ManyRequestAPI, APIBadRequest, APIOtherStatusHTTP, NotFoundFLight, LittelDate
+from bot.error.api import ManyRequestAPI, APIBadRequest, APIOtherStatusHTTP, NotFoundFLight, LittelDate, TheDataProviderHasRestrictedAccess
 
 
 class PredictionService:
@@ -21,6 +21,8 @@ class PredictionService:
             text = "😔Мы не располагаем информацией об этом рейсе!"
         except LittelDate:
             text = "⚠️Пока не получается сделать прогноз. Слишком мало данных"
+        except TheDataProviderHasRestrictedAccess:
+            text = "🚫Поставщик данных ограничил доступ для нас.😔"
 
         return text
 
